@@ -1,0 +1,1 @@
+{"version":3,"file":"forbidden.exception.js","sourceRoot":"","sources":["../../../src/common/exceptions/forbidden.exception.ts"],"names":[],"mappings":";;;AAAA,qDAAiD;AAEjD,MAAa,kBAAmB,SAAQ,8BAAa;IACnD,YAAY,OAAO,GAAG,cAAc;QAClC,KAAK,CAAC,GAAG,EAAE,OAAO,CAAC,CAAC;IACtB,CAAC;CACF;AAJD,gDAIC"}
