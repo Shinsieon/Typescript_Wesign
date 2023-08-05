@@ -88,9 +88,7 @@ export default class UserController implements Controller {
   me: Handler = (req, res) => {
     const email = req.session.email;
     const user = this.userService.findByEmail(email);
-    console.log(req.session);
-    //console.log(res.h);
-    if (user) throw new UnauthorizedException();
+    //if (user) throw new UnauthorizedException();
     return { user: user.toJson() };
   };
 }

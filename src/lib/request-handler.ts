@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { UnauthorizedException } from "../common/exceptions";
 
 export type Handler = (
   req: Request,

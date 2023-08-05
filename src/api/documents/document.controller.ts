@@ -1,14 +1,15 @@
 import { Handler, Router } from "express";
-import {
-  BadRequestException,
-  UnauthorizedException,
-} from "../../common/exceptions";
 import { Controller } from "../../common/interfaces/controller.interface";
 import { wrap } from "../../lib/request-handler";
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from "../../common/exceptions";
 import { DocumentDto } from "./dto/document.dto";
-
 import { DocumentService } from "./document.service";
 import { DocumentRepository } from "./document.repository";
+import { DocumentRaw } from "./entities/document.entity";
 
 export const validEmailCheck = (email: string) => {
   const pattern =
@@ -19,8 +20,7 @@ export const validEmailCheck = (email: string) => {
 export default class DocumentController implements Controller {
   path = "/documents";
   router = Router();
-  docService = new DocumentService(new DocumentRepository());
-
+  documentService = new DocumentService(new DocumentRepository());
   constructor() {
     this.initializeRoutes();
   }
@@ -37,11 +37,12 @@ export default class DocumentController implements Controller {
 
     this.router.use(this.path, router);
   }
+  checkValidatedUser = (req) => req.headers.authorization;
 
   create: Handler = (req, res) => {
-    console.log("[headers]", req.headers);
-    if (!req.headers.authorization) throw new UnauthorizedException();
+    if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     const { title, content, participants } = req.body as DocumentDto;
+
     if (!title || !content) {
       throw new BadRequestException("제목 또는 내용이 없습니다.");
     }
@@ -63,30 +64,35 @@ export default class DocumentController implements Controller {
           "참가자의 이메일 값이 이메일 형식이 아닙니다."
         );
     }
-    // const documentId = this.docService.createDocument({
-    //   title,
-    //   content,
-    //   participants,
-    // });
-
-    return {
-      email,
-    };
+    const documentId = this.documentService.createDocument({
+      title,
+      content,
+      participants,
+    });
+    return documentId;
   };
 
   findOne: Handler = (req, res) => {
-    throw new Error("Method not implemented.");
+    if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
+    const { documentId } = req.params;
+    if (!documentId) throw new ForbiddenException();
+    const document = this.documentService.readDocument(documentId);
+
+    return { document };
   };
 
   findAll: Handler = (req, res) => {
+    if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     throw new Error("Method not implemented.");
   };
 
   publish: Handler = (req, res) => {
+    if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     throw new Error("Method not implemented.");
   };
 
   remove: Handler = (req, res) => {
+    if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     throw new Error("Method not implemented.");
   };
 }
