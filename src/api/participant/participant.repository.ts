@@ -23,4 +23,20 @@ export class ParticipantRepository implements Repository {
 
     return Participant.fromJson(raw);
   }
+
+  create(participants: ParticipantRaw[]) {
+    const result = db.prepare(
+      [
+        "INSERT INTO",
+        this.tableName,
+        "(id, document_id, name, email, status, signature, created_at, updated_at)",
+        "VALUES",
+        "($id, $document_id, $name, $email, $status, $signature, $created_at, $updated_at)",
+      ].join(" ")
+    );
+
+    db.transaction((participants) => {
+      for (const participant of participants) result.run(participant);
+    });
+  }
 }

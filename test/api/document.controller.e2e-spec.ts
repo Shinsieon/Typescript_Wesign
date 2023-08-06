@@ -223,7 +223,6 @@ describe("DocumentController (e2e)", () => {
       // given
       const documentId = await createDocument(req, headers);
       const withHeaders = withHeadersBy(headers, { token: false });
-
       // when
       const res = await withHeaders(req.get(`${apiPath}/${documentId}`)).expect(
         401

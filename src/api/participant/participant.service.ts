@@ -1,8 +1,14 @@
+import { UUID } from "../../@types/datatype";
 import { NotFoundException } from "../../common/exceptions";
 import * as jwt from "../../lib/jwt";
 import { ParticipantTokenDto } from "./dto/token.dto";
-import { ParticipantJson } from "./entities/participant.entity";
+import {
+  ParticipantInDoc,
+  ParticipantJson,
+  ParticipantRaw,
+} from "./entities/participant.entity";
 import { ParticipantRepository } from "./participant.repository";
+import { v4 as uuidv4 } from "uuid";
 
 const DISABLE_STATUSES = Object.freeze(["CREATED", "DELETED"]);
 
@@ -28,5 +34,28 @@ export class ParticipantService {
     });
 
     return [token, participant.toJson()];
+  }
+  createParticipant(participants: ParticipantInDoc[], document_id: UUID) {
+    const now = new Date().toISOString();
+    const participants_: ParticipantRaw[] = participants.map((participant) => {
+      const id: UUID = uuidv4();
+      const { name, email } = participant;
+      const status = "CREATED";
+      const signature = "";
+      const created_at = now;
+      const updated_at = now;
+      return {
+        id,
+        document_id,
+        name,
+        email,
+        status,
+        signature,
+        created_at,
+        updated_at,
+      };
+    });
+    this.participantRepository.create(participants_);
+    return;
   }
 }

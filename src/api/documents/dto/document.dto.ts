@@ -1,11 +1,9 @@
-import { Email, UUID } from "../../../@types/datatype";
+import { UUID } from "../../../@types/datatype";
+import { ParticipantInDoc } from "../../participant/entities/participant.entity";
 
 export interface DocumentDto {
   title: string;
   content: string;
-  participants: [{ name: string; email: Email }];
+  participants: ParticipantInDoc[];
 }
-
-export interface DocumentResponse {
-  documentId: UUID;
-}
+export type DocumentResponse = UUID;

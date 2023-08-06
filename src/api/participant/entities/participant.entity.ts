@@ -10,6 +10,10 @@ export interface ParticipantRaw {
   created_at: ISODatetime;
   updated_at: ISODatetime;
 }
+export interface ParticipantInDoc {
+  name: string;
+  email: Email;
+}
 
 export class Participant {
   constructor(

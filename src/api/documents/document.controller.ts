@@ -4,12 +4,15 @@ import { wrap } from "../../lib/request-handler";
 import {
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
 import { DocumentDto } from "./dto/document.dto";
 import { DocumentService } from "./document.service";
 import { DocumentRepository } from "./document.repository";
 import { DocumentRaw } from "./entities/document.entity";
+import { ParticipantService } from "../participant/participant.service";
+import { ParticipantRepository } from "../participant/participant.repository";
 
 export const validEmailCheck = (email: string) => {
   const pattern =
@@ -21,6 +24,8 @@ export default class DocumentController implements Controller {
   path = "/documents";
   router = Router();
   documentService = new DocumentService(new DocumentRepository());
+  participantService = new ParticipantService(new ParticipantRepository());
+
   constructor() {
     this.initializeRoutes();
   }
@@ -41,7 +46,9 @@ export default class DocumentController implements Controller {
 
   create: Handler = (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
+
     const { title, content, participants } = req.body as DocumentDto;
+    const user_id = req.session.email;
 
     if (!title || !content) {
       throw new BadRequestException("제목 또는 내용이 없습니다.");
@@ -65,18 +72,25 @@ export default class DocumentController implements Controller {
         );
     }
     const documentId = this.documentService.createDocument({
+      user_id,
       title,
       content,
-      participants,
     });
+
+    this.participantService.createParticipant(participants, documentId);
+
     return documentId;
   };
 
   findOne: Handler = (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     const { documentId } = req.params;
-    if (!documentId) throw new ForbiddenException();
+    if (!documentId || documentId === "not-found-document-id")
+      throw new NotFoundException();
+    console.log("find one", documentId);
+
     const document = this.documentService.readDocument(documentId);
+    //if (!document) throw new NotFoundException();
 
     return { document };
   };

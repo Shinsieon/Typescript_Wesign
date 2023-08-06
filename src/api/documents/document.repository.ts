@@ -1,26 +1,29 @@
 import { db } from "../../lib/database";
 import { Repository } from "../../common/interfaces/repository.interface";
-import { DocumentDto } from "./dto/document.dto";
 import { UUID } from "../../@types/datatype";
-import { Document, DocumentRaw } from "./entities/document.entity";
+import {
+  Document,
+  DocumentHistoryRaw,
+  DocumentRaw,
+} from "./entities/document.entity";
 
 export class DocumentRepository implements Repository {
   tableName = "documents";
 
-  create(raws: DocumentDto) {
-    const result = db.prepare(
-      [
-        "INSERT INTO",
-        this.tableName,
-        "(id, user_id, title, content, status, created_at, updated_at)",
-        "VALUES",
-        "($id, $user_id, $title, $content, $status, $created_at, $updated_at)",
-      ].join(" ")
-    );
-
-    const many = db.transaction((raws) => {
-      for (const raw of raws) result.run(raw);
-    });
+  create(raw: DocumentRaw) {
+    //document 를 생성합니다.
+    const result = db
+      .prepare(
+        [
+          "INSERT INTO",
+          this.tableName,
+          "(id, user_id, title, content, status, created_at, updated_at)",
+          "VALUES",
+          "($id, $user_id, $title, $content, $status, $created_at, $updated_at)",
+        ].join(" ")
+      )
+      .run(raw);
+    console.log("document create result :", result, raw);
     return;
   }
   select(id: UUID) {
@@ -30,5 +33,21 @@ export class DocumentRepository implements Repository {
       .get(id);
 
     return Document.fromJson(raw);
+  }
+
+  save_history(raw: DocumentHistoryRaw) {
+    const result = db
+      .prepare(
+        [
+          "INSERT INTO",
+          this.tableName,
+          "(id, document_id, type, data, created_at)",
+          "VALUES",
+          "('', $document_id, $type, $data, $created_at)",
+        ].join(" ")
+      )
+      .run(raw);
+
+    return;
   }
 }
