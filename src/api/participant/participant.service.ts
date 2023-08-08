@@ -1,11 +1,13 @@
-import { UUID } from "../../@types/datatype";
+import { Email, UUID } from "../../@types/datatype";
 import { NotFoundException } from "../../common/exceptions";
 import * as jwt from "../../lib/jwt";
 import { ParticipantTokenDto } from "./dto/token.dto";
 import {
+  Participant,
   ParticipantInDoc,
   ParticipantJson,
   ParticipantRaw,
+  ParticipantWithoutSign,
 } from "./entities/participant.entity";
 import { ParticipantRepository } from "./participant.repository";
 import { v4 as uuidv4 } from "uuid";
@@ -57,5 +59,21 @@ export class ParticipantService {
     });
     this.participantRepository.create(participants_);
     return;
+  }
+  findByDocumentIdAndEmail(documentId: UUID, email: Email): Participant {
+    return this.participantRepository.findByDocumentIdAndEmail(
+      documentId,
+      email
+    );
+  }
+  findByDocumentId(documentId: UUID): ParticipantWithoutSign[] {
+    let participants_: ParticipantWithoutSign[] = [];
+    const participants =
+      this.participantRepository.findByDocumentId(documentId);
+    for (let i = 0; i < participants.length; i++) {
+      const { signature, ...rest } = participants[i];
+      participants_.push(rest);
+    }
+    return participants_;
   }
 }

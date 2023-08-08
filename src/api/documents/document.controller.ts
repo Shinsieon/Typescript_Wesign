@@ -10,9 +10,13 @@ import {
 import { DocumentDto } from "./dto/document.dto";
 import { DocumentService } from "./document.service";
 import { DocumentRepository } from "./document.repository";
-import { DocumentRaw } from "./entities/document.entity";
+import {
+  DocumentRaw,
+  DocumentWithParticipants,
+} from "./entities/document.entity";
 import { ParticipantService } from "../participant/participant.service";
 import { ParticipantRepository } from "../participant/participant.repository";
+import { ParticipantWithoutSign } from "../participant/entities/participant.entity";
 
 export const validEmailCheck = (email: string) => {
   const pattern =
@@ -79,20 +83,29 @@ export default class DocumentController implements Controller {
 
     this.participantService.createParticipant(participants, documentId);
 
-    return documentId;
+    return { documentId };
   };
 
   findOne: Handler = (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
     const { documentId } = req.params;
     if (!documentId || documentId === "not-found-document-id")
+      //문서 ID가 올바르지 않은 경우
       throw new NotFoundException();
-    console.log("find one", documentId);
 
     const document = this.documentService.readDocument(documentId);
-    //if (!document) throw new NotFoundException();
+    if (!document) throw new NotFoundException(); //문서가 존재하지 않는 경우
 
-    return { document };
+    if (req.session.email !== document.user_id) throw new ForbiddenException(); //문서의 소유자가 아닌 경우
+
+    let docWithParts: DocumentWithParticipants = { ...document }; //DocumentRaw type에 Participants 필드를 붙인 타입
+
+    let participantsWithoutSign =
+      this.participantService.findByDocumentId(documentId); //documentId로 참가자를 찾는다.
+
+    docWithParts.participants = participantsWithoutSign;
+
+    return { document: docWithParts };
   };
 
   findAll: Handler = (req, res) => {

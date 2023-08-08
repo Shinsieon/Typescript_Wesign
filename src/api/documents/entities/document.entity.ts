@@ -1,4 +1,5 @@
 import { Email, ISODatetime, UUID } from "../../../@types/datatype";
+import { ParticipantWithoutSign } from "../../participant/entities/participant.entity";
 
 export interface DocumentRaw {
   readonly id: UUID;
@@ -61,4 +62,7 @@ export interface DocumentJson {
   readonly status: string;
   readonly createdAt: ISODatetime;
   readonly updatedAt: ISODatetime;
+}
+export interface DocumentWithParticipants extends DocumentRaw {
+  participants?: ParticipantWithoutSign[];
 }

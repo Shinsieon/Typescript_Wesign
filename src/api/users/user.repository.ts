@@ -11,7 +11,6 @@ export class UserRepository implements Repository {
     const raw: UserRaw = db
       .prepare(`SELECT * FROM ${this.tableName} WHERE id = ?`)
       .get(id);
-
     return User.fromJson(raw);
   }
 

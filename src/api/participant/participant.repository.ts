@@ -10,8 +10,14 @@ export class ParticipantRepository implements Repository {
     const raw: ParticipantRaw = db
       .prepare(`SELECT * FROM ${this.tableName} WHERE id = ?`)
       .get(id);
-
     return Participant.fromJson(raw);
+  }
+  findByDocumentId(document_id: UUID) {
+    const raw: ParticipantRaw[] = db
+      .prepare(`SELECT * FROM ${this.tableName} WHERE document_id = ?`)
+      .all(document_id);
+
+    return raw;
   }
 
   findByDocumentIdAndEmail(documentId: UUID, email: Email) {
@@ -25,6 +31,7 @@ export class ParticipantRepository implements Repository {
   }
 
   create(participants: ParticipantRaw[]) {
+    //console.log("participant reposiory", participants);
     const result = db.prepare(
       [
         "INSERT INTO",
@@ -34,9 +41,12 @@ export class ParticipantRepository implements Repository {
         "($id, $document_id, $name, $email, $status, $signature, $created_at, $updated_at)",
       ].join(" ")
     );
-
-    db.transaction((participants) => {
-      for (const participant of participants) result.run(participant);
+    const many = db.transaction((participants) => {
+      for (const participant of participants) {
+        result.run(participant);
+      }
     });
+    many(participants);
+    return;
   }
 }

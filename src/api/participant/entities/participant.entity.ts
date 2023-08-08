@@ -63,3 +63,5 @@ export interface ParticipantJson {
   readonly createdAt: ISODatetime;
   readonly updatedAt: ISODatetime;
 }
+
+export type ParticipantWithoutSign = Omit<ParticipantRaw, "signature">;

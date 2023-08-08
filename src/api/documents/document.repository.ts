@@ -23,16 +23,14 @@ export class DocumentRepository implements Repository {
         ].join(" ")
       )
       .run(raw);
-    console.log("document create result :", result, raw);
     return;
   }
   select(id: UUID) {
-    console.log("document repository", id);
-    const raw: DocumentRaw = db
+    const result: DocumentRaw = db
       .prepare(`SELECT * FROM ${this.tableName} WHERE id = ?`)
       .get(id);
 
-    return Document.fromJson(raw);
+    return result;
   }
 
   save_history(raw: DocumentHistoryRaw) {

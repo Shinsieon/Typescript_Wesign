@@ -2,6 +2,7 @@ import { DocumentDto, DocumentResponse } from "./dto/document.dto";
 import { DocumentRepository } from "./document.repository";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "../../@types/datatype";
+import { DocumentRaw } from "./entities/document.entity";
 
 // CREATE TABLE `documents` (
 //   `id` TEXT PRIMARY KEY,
@@ -30,14 +31,8 @@ export class DocumentService {
     });
     return id;
   }
-  readDocument(id: UUID) {
+  readDocument(id: UUID): DocumentRaw {
     const document = this.documentRepository.select(id);
-    console.log("read document", document);
     return document;
-    //participants의 서명은 없어야 한다.
-    // return document.participants.map((participant) => {
-    //   let { signature, ...rest } = participant;
-    //   return rest;
-    // });
   }
 }
