@@ -110,16 +110,75 @@ export default class DocumentController implements Controller {
 
   findAll: Handler = (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
-    throw new Error("Method not implemented.");
+    const OFFSET_MIN = 0;
+    const OFFSET_MAX = Number.MAX_SAFE_INTEGER;
+    const OFFSET_DEFAULT = 0;
+    const SIZE_MIN = 1;
+    const SIZE_MAX = 5;
+    const SIZE_DEFAULT = 5;
+    let offset = Number(req.query?.offset) || 0;
+    let size = Number(req.query?.size) || 0;
+    let status = req.query?.status || "none";
+
+    if (!offset || offset < OFFSET_MIN || offset > OFFSET_MAX)
+      //최솟값-최댓값 범위를 벗어나거나 값이 넘어오지 않았다면, 기본값으로 대체합니다.
+      offset = OFFSET_DEFAULT;
+    if (!size || size < SIZE_MIN || size > SIZE_MAX) size = SIZE_DEFAULT;
+
+    let documents = this.documentService.readAllDocument();
+
+    documents = documents.splice(offset * size, size);
+
+    if (status !== "none")
+      documents = documents.filter((doc) => doc.status === status); //status 조건
+
+    console.log("findAll : ", documents);
+
+    return documents;
   };
 
-  publish: Handler = (req, res) => {
+  publish: Handler = async (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
-    throw new Error("Method not implemented.");
+    const { documentId } = req.params;
+    if (!documentId || documentId === "not-found-document-id")
+      throw new NotFoundException(); //문서 ID가 올바르지 않은 경우
+
+    const document = this.documentService.readDocument(documentId);
+    if (!document) throw new NotFoundException();
+    if (req.session.email !== document.user_id) throw new ForbiddenException(); //문서의 소유자가 아닌 경우
+    if (document.status !== "CREATED") throw new BadRequestException();
+    const result = await this.documentService.publishDocument(documentId);
+
+    const partsResult = await this.participantService.publishByDocumentId(
+      documentId
+    );
+    return result && partsResult;
   };
 
-  remove: Handler = (req, res) => {
+  remove: Handler = async (req, res) => {
     if (!this.checkValidatedUser(req)) throw new UnauthorizedException();
-    throw new Error("Method not implemented.");
+    const { documentId } = req.params;
+    if (!documentId || documentId === "not-found-document-id")
+      //문서 ID가 올바르지 않은 경우
+      throw new NotFoundException();
+
+    const document = this.documentService.readDocument(documentId);
+    if (!document) throw new NotFoundException(); //문서가 존재하지 않는 경우
+
+    if (req.session.email !== document.user_id) throw new ForbiddenException(); //문서의 소유자가 아닌 경우
+
+    if (document.status === "CREATED") {
+      const result = await this.documentService.removeDocument(documentId);
+      const partsResult = await this.participantService.removeByDocumentId(
+        documentId
+      );
+      return result && partsResult;
+    } else {
+      //문서와 참가자들의 상태를 DELETED로 변경합니다.
+      if (document.status === "DELETED") return true;
+      else {
+        throw new BadRequestException();
+      }
+    }
   };
 }

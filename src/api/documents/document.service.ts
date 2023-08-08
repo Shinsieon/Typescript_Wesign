@@ -35,4 +35,15 @@ export class DocumentService {
     const document = this.documentRepository.select(id);
     return document;
   }
+  async removeDocument(id: UUID): Promise<boolean> {
+    const result = await this.documentRepository.remove(id);
+    return true;
+  }
+  async publishDocument(id: UUID): Promise<boolean> {
+    const result = await this.documentRepository.publish(id);
+    return true;
+  }
+  readAllDocument(): DocumentRaw[] {
+    return this.documentRepository.selectAll();
+  }
 }

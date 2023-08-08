@@ -49,4 +49,24 @@ export class ParticipantRepository implements Repository {
     many(participants);
     return;
   }
+  remove(document_id: UUID) {
+    const result = db
+      .prepare(
+        ["UPDATE", this.tableName, "SET status = ? where document_id = ?"].join(
+          " "
+        )
+      )
+      .run(["DELETED", document_id]);
+    return true;
+  }
+  publish(document_id: UUID) {
+    const result = db
+      .prepare(
+        ["UPDATE", this.tableName, "SET status = ? where document_id = ?"].join(
+          " "
+        )
+      )
+      .run(["INVITED", document_id]);
+    return true;
+  }
 }

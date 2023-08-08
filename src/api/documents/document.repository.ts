@@ -32,6 +32,13 @@ export class DocumentRepository implements Repository {
 
     return result;
   }
+  selectAll() {
+    const result: DocumentRaw[] = db
+      .prepare(`SELECT * FROM ${this.tableName}`)
+      .all();
+
+    return result;
+  }
 
   save_history(raw: DocumentHistoryRaw) {
     const result = db
@@ -47,5 +54,21 @@ export class DocumentRepository implements Repository {
       .run(raw);
 
     return;
+  }
+  remove(document_id: UUID) {
+    const result = db
+      .prepare(
+        ["UPDATE", this.tableName, "SET status=? WHERE id = ?"].join(" ")
+      )
+      .run("DELETED", document_id);
+    return true;
+  }
+  publish(document_id: UUID) {
+    const result = db
+      .prepare(
+        ["UPDATE", this.tableName, "SET status=? WHERE id = ?"].join(" ")
+      )
+      .run("PUBLISHED", document_id);
+    return true;
   }
 }

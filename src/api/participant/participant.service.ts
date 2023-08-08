@@ -76,4 +76,12 @@ export class ParticipantService {
     }
     return participants_;
   }
+  async removeByDocumentId(documentId: UUID): Promise<boolean> {
+    const result = await this.participantRepository.remove(documentId);
+    return result;
+  }
+  async publishByDocumentId(documentId: UUID): Promise<boolean> {
+    const result = await this.participantRepository.publish(documentId);
+    return result;
+  }
 }
