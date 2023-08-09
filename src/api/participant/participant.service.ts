@@ -66,6 +66,9 @@ export class ParticipantService {
       email
     );
   }
+  findByEmail(email: Email): Participant {
+    return this.participantRepository.findByEmail(email);
+  }
   findByDocumentId(documentId: UUID): ParticipantWithoutSign[] {
     let participants_: ParticipantWithoutSign[] = [];
     const participants =
@@ -82,6 +85,10 @@ export class ParticipantService {
   }
   async publishByDocumentId(documentId: UUID): Promise<boolean> {
     const result = await this.participantRepository.publish(documentId);
+    return result;
+  }
+  async sign(email: Email): Promise<boolean> {
+    const result = await this.participantRepository.sign(email);
     return result;
   }
 }

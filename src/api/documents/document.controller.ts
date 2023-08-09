@@ -132,8 +132,6 @@ export default class DocumentController implements Controller {
     if (status !== "none")
       documents = documents.filter((doc) => doc.status === status); //status 조건
 
-    console.log("findAll : ", documents);
-
     return documents;
   };
 

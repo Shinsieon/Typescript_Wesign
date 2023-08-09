@@ -19,6 +19,12 @@ export class ParticipantRepository implements Repository {
 
     return raw;
   }
+  findByEmail(email: Email) {
+    const raw: ParticipantRaw = db
+      .prepare(`SELECT * FROM ${this.tableName} WHERE email = ?`)
+      .get(email);
+    return Participant.fromJson(raw);
+  }
 
   findByDocumentIdAndEmail(documentId: UUID, email: Email) {
     const raw: ParticipantRaw = db
@@ -67,6 +73,20 @@ export class ParticipantRepository implements Repository {
         )
       )
       .run(["INVITED", document_id]);
+    return true;
+  }
+  sign(email: Email) {
+    const result = db
+      .prepare(
+        [
+          "UPDATE",
+          this.tableName,
+          "SET signature = ?, status=? where email = ?",
+        ].join(" ")
+      )
+      .run(["sign", "SIGNED", email]);
+
+    console.log("sign 여기?", result, email);
     return true;
   }
 }
