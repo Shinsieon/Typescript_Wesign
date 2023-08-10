@@ -2,8 +2,14 @@ import express, { Router } from "express";
 import session from "express-session";
 import { Controller } from "./common/interfaces/controller.interface";
 import { verifyJWT } from "./middlewares/auth.middleware";
-import { csrf } from "./middlewares/csrf.middleware";
+import { CSRF_TOKEN_HEADER, csrf } from "./middlewares/csrf.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from "./common/exceptions";
+import Tokens from "csrf";
 
 class App {
   private app: express.Application;
@@ -48,7 +54,9 @@ class App {
   private initializeControllers(controllers: Controller[]) {
     const router = Router();
 
-    router.get("/", (req, res) => res.send("OK"));
+    router.get("/", (req, res) => {
+      res.send("OK");
+    });
 
     controllers.forEach((controller) => {
       router.use(controller.router);
