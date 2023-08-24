@@ -4,12 +4,7 @@ import { Controller } from "./common/interfaces/controller.interface";
 import { verifyJWT } from "./middlewares/auth.middleware";
 import { CSRF_TOKEN_HEADER, csrf } from "./middlewares/csrf.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
-import {
-  BadRequestException,
-  ForbiddenException,
-  UnauthorizedException,
-} from "./common/exceptions";
-import Tokens from "csrf";
+import cookieParser from "cookie-parser";
 
 class App {
   private app: express.Application;
@@ -43,6 +38,7 @@ class App {
         saveUninitialized: true,
       })
     );
+    this.app.use(cookieParser());
     this.app.use(csrf());
     this.app.use(verifyJWT);
   }

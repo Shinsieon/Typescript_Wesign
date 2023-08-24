@@ -9,6 +9,7 @@ import { LoginDto, LoginResponse } from "./dto/login.dto";
 import { SignUpDto, SignUpResponse } from "./dto/signup.dto";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
+import * as jwt from "../../lib/jwt";
 
 export default class UserController implements Controller {
   path = "/users";
@@ -76,9 +77,25 @@ export default class UserController implements Controller {
     }
 
     const [token, user] = await this.userService.login({ email, password });
+    const { user_id } = jwt.verify(token) as jwt.JwtPayloadOfUser;
+    const { csrfSecret, csrfToken } = req.session;
+
+    req.sessionStore.all((err, sessions) => {
+      for (let sessionId in sessions) {
+        if (sessions[sessionId]["user_id"] === user_id) {
+          console.log("중복 로그인 발생?", sessions[sessionId], req.session);
+          if (sessions[sessionId].csrfSecret !== csrfSecret) {
+            req.sessionStore.destroy(sessionId, () => {
+              console.log("제거 성공!");
+              console.log("이 세션 id 는 없습니다.", sessionId);
+            });
+          }
+        }
+      }
+    });
+    req.session.user_id = user_id;
 
     req.session.email = email;
-
     return {
       token,
       user,
@@ -86,9 +103,13 @@ export default class UserController implements Controller {
   };
 
   me: Handler = (req, res) => {
+    if (!req.get("Cookie")) throw new UnauthorizedException();
+
+    if (req.headers.authorization === undefined) {
+      throw new UnauthorizedException();
+    }
     const email = req.session.email;
     const user = this.userService.findByEmail(email);
-    //if (user) throw new UnauthorizedException();
     return { user: user.toJson() };
   };
 }

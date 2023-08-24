@@ -101,7 +101,6 @@ describe("UserController (e2e)", () => {
       // given
       const headers = await fetchUserTokenAndHeaders(req);
       const withHeaders = withHeadersBy(headers, { cookie: false });
-
       // when
       const res = await withHeaders(req.get(apiPath)).expect(401);
 
@@ -113,6 +112,7 @@ describe("UserController (e2e)", () => {
       // given
       const headers1 = await fetchUserTokenAndHeaders(req);
       const headers2 = await fetchUserTokenAndHeaders(req);
+      console.log("!!!!headers", headers2, headers1, req.get("Cookie"));
       headers1.cookie = headers2.cookie;
       const withHeaders = withHeadersBy(headers1);
 

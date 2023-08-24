@@ -6,6 +6,8 @@ declare module "express-session" {
     email?: Email;
     csrfSecret?: string;
     csrfToken?: string;
+    user_id?: string;
+    token?: string;
   }
 }
 

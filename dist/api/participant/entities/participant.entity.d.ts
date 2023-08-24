@@ -9,6 +9,10 @@ export interface ParticipantRaw {
     created_at: ISODatetime;
     updated_at: ISODatetime;
 }
+export interface ParticipantInDoc {
+    name: string;
+    email: Email;
+}
 export declare class Participant {
     readonly id: UUID;
     readonly documentId: UUID;
@@ -31,3 +35,4 @@ export interface ParticipantJson {
     readonly createdAt: ISODatetime;
     readonly updatedAt: ISODatetime;
 }
+export declare type ParticipantWithoutSign = Omit<ParticipantRaw, "signature">;

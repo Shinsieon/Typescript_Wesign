@@ -60,7 +60,9 @@ class App {
     }
     initializeControllers(controllers) {
         const router = express_1.Router();
-        router.get("/", (req, res) => res.send("OK"));
+        router.get("/", (req, res) => {
+            res.send("OK");
+        });
         controllers.forEach((controller) => {
             router.use(controller.router);
         });
