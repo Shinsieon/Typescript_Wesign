@@ -37,7 +37,6 @@ export class ParticipantRepository implements Repository {
   }
 
   create(participants: ParticipantRaw[]) {
-    //console.log("participant reposiory", participants);
     const result = db.prepare(
       [
         "INSERT INTO",
@@ -86,7 +85,6 @@ export class ParticipantRepository implements Repository {
       )
       .run(["sign", "SIGNED", email]);
 
-    console.log("sign 여기?", result, email);
     return true;
   }
 }

@@ -9,7 +9,6 @@ import { LoginDto, LoginResponse } from "./dto/login.dto";
 import { SignUpDto, SignUpResponse } from "./dto/signup.dto";
 import { UserRepository } from "./user.repository";
 import { UserService } from "./user.service";
-import * as jwt from "../../lib/jwt";
 
 export default class UserController implements Controller {
   path = "/users";

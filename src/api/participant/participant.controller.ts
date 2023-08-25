@@ -44,12 +44,8 @@ export default class ParticipantController implements Controller {
     req.sessionStore.all((err, sessions) => {
       for (let sessionId in sessions) {
         if (sessions[sessionId]["email"] === email) {
-          console.log("중복 로그인 발생?", sessions[sessionId], req.session);
           if (sessions[sessionId].csrfSecret !== csrfSecret) {
-            req.sessionStore.destroy(sessionId, () => {
-              console.log("제거 성공!");
-              console.log("이 세션 id 는 없습니다.", sessionId);
-            });
+            req.sessionStore.destroy(sessionId, () => {});
           }
         }
       }

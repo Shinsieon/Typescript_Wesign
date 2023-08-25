@@ -112,7 +112,6 @@ describe("UserController (e2e)", () => {
       // given
       const headers1 = await fetchUserTokenAndHeaders(req);
       const headers2 = await fetchUserTokenAndHeaders(req);
-      console.log("!!!!headers", headers2, headers1, req.get("Cookie"));
       headers1.cookie = headers2.cookie;
       const withHeaders = withHeadersBy(headers1);
 
