@@ -77,19 +77,18 @@ export default class UserController implements Controller {
     }
 
     const [token, user] = await this.userService.login({ email, password });
-    const { user_id } = jwt.verify(token) as jwt.JwtPayloadOfUser;
     const { csrfSecret, csrfToken } = req.session;
 
     req.sessionStore.all((err, sessions) => {
       for (let sessionId in sessions) {
-        if (sessions[sessionId]["user_id"] === user_id) {
+        if (sessions[sessionId]["email"] === email) {
           if (sessions[sessionId].csrfSecret !== csrfSecret) {
             req.sessionStore.destroy(sessionId, () => {});
           }
         }
       }
     });
-    req.session.user_id = user_id;
+    //req.session.user_id = user_id;
 
     req.session.email = email;
     return {
